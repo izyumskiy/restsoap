@@ -1,5 +1,7 @@
 {
-    "name": "restsoap/api",
+    "name": "izyumskiy/restsoap-api",
+	"descitpion": "Package for generating REST and SOAP interfaces with WSDL",
+	"keywords": ["rest", "soap", "wsdl", "xsd"],
 	"autoload": {
 		"psr-0": { "RestSoap\\": "" }
 	}
