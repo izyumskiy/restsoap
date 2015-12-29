@@ -1,0 +1,8 @@
+{
+    "name": "restsoap/api",
+    "autoload": {
+        "psr-0" : {
+            "Restsoap\\Api" : "src"
+        }
+   }
+}
