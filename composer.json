@@ -1,6 +1,6 @@
 {
     "name": "restsoap/api",
 	"autoload": {
-		"psr-4": { "RestSoap\\": "src/" }
+		"psr-0": { "RestSoap\\": "" }
 	}
 }
