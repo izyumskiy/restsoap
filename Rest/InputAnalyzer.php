@@ -2,8 +2,8 @@
 namespace RestSoap\Rest;
 
 use RestSoap;
-use RestSoap\Soap\Template;
-use RestSoap\Soap\Xslt;
+use RestSoap\Template;
+use RestSoap\Xslt;
 
 class InputAnalyzer extends UrlAnalyzer {
 
@@ -78,7 +78,7 @@ class InputAnalyzer extends UrlAnalyzer {
      */
     private function isValidXmlRequest($xmlData) {
         $tpl = $this->getCmsViewer();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../views/api/xsl/get_xsd_schema.xsl', []);
+        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_xsd_schema.xsl', []);
         $wsdlViewPath = $this->getWsdlParams('view_path');
         $wsdl = $tpl->formOutput( $wsdlViewPath . $this->getModuleName() . '.wsdl', []);
         $xslt = new Api\Xslt\Transformer();

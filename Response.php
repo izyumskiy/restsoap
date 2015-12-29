@@ -1,8 +1,8 @@
 <?php
 namespace RestSoap;
 
-use RestSoap\Soap\Template;
-use RestSoap\Soap\Xslt;
+use RestSoap\Template;
+use RestSoap\Xslt;
 
 class Response extends ApiBase {
 
@@ -153,10 +153,10 @@ class Response extends ApiBase {
     private function validateXmlResponse($outputType) {
         if( $outputType != self::RESP_XML )
             return $this;
-        $tpl = new Api\Template\Templater();
+        $tpl = new Template\Templater();
         $xsl = $tpl->formOutput(dirname(__FILE__) . '/views/api/xsl/get_xsd_schema.xsl', array());
         $wsdl = $tpl->formOutput($this->getWsdl() . '.wsdl', array());
-        $xslt = new Api\Xslt\Transformer();
+        $xslt = new Xslt\Transformer();
         $xmlObj = $xslt->transform($wsdl, $xsl );
 
         $xsd = $xmlObj->asXML();

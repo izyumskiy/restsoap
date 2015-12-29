@@ -14,10 +14,10 @@
 namespace RestSoap\Rest;
 
 use RestSoap;
-use RestSoap\Soap\Template;
-use RestSoap\Soap\Xslt;
+use RestSoap\Template;
+use RestSoap\Xslt;
 
-class UrlAnalyzer extends Api\ApiBase {
+class UrlAnalyzer extends RestSoap\ApiBase {
 
     private $_url;
 
@@ -65,13 +65,13 @@ class UrlAnalyzer extends Api\ApiBase {
     private $_viewer;
 
     /**
-     * @return Api\Template\Templater
+     * @return Template\Templater
      */
     protected function getViewer() {
-        if( $this->_viewer instanceof Api\Template\Templater )
+        if( $this->_viewer instanceof Template\Templater )
             return $this->_viewer;
         else
-            $this->_viewer = new Api\Template\Templater();
+            $this->_viewer = new Template\Templater();
             return $this->_viewer;
     }
 
@@ -190,11 +190,11 @@ class UrlAnalyzer extends Api\ApiBase {
         $restObjectName = $url[5];
 
         $tpl = $this->getViewer();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../views/api/xsl/rest_mapper.xsl', array());
+        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/rest_mapper.xsl', array());
         $wsdlViewPath = $this->getWsdlParams('view_path');
         $wsdlContent = $tpl->formOutput( $wsdlViewPath . $this->getModuleName() . '.wsdl', $this->getWsdlParams());
 
-        $xslt = new Api\Xslt\Transformer();
+        $xslt = new Xslt\Transformer();
         $xml = $xslt->transform($wsdlContent, $xsl);
 
         $result = array();
@@ -226,11 +226,11 @@ class UrlAnalyzer extends Api\ApiBase {
     protected function getParamsWithDescriptions() {
         $restObjectInfo = $this->getRestObjectInfo();
         $tpl = $this->getViewer();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../views/api/xsl/get_request_params.xsl', array( 'call' => $restObjectInfo['call'], 'httpMethod' => $restObjectInfo['http_method'] ));
+        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_request_params.xsl', array( 'call' => $restObjectInfo['call'], 'httpMethod' => $restObjectInfo['http_method'] ));
         $wsdlViewPath = $this->getWsdlParams('view_path');
         $wsdlContent = $tpl->formOutput( $wsdlViewPath . $this->getModuleName() . '.wsdl', $this->getWsdlParams());
 
-        $xslt = new Api\Xslt\Transformer();
+        $xslt = new Xslt\Transformer();
         $xml = $xslt->transform($wsdlContent, $xsl);
 
         $paramsDesc = array();

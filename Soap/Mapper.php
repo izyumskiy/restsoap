@@ -2,10 +2,10 @@
 namespace RestSoap\Soap;
 
 use RestSoap;
-use RestSoap\Soap\Template;
-use RestSoap\Soap\Xslt;
+use RestSoap\Template;
+use RestSoap\Xslt;
 
-class Mapper extends Api\ApiBase {
+class Mapper extends RestSoap\ApiBase {
 
     private $_wsdlTitle;
     private $_map;
@@ -94,11 +94,11 @@ class Mapper extends Api\ApiBase {
      * @param $object
      */
     public function setWsdlSoapMap() {
-        $tpl = new Api\Template\Templater();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../views/api/xsl/get_soap_class.xsl', array());
+        $tpl = new Template\Templater();
+        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_soap_class.xsl', array());
         $wsdlContent = $tpl->formOutput( $this->getViewParameters('view_path') . $this->getWsdlTitle() . '.wsdl', $this->getViewParameters());
 
-        $xslt = new Api\Xslt\Transformer();
+        $xslt = new Xslt\Transformer();
         $xml = $xslt->transform($wsdlContent, $xsl);
         $map = array('class' => (string)$xml->php_class, 'uri' => (string)$xml->uri );
         $this->setMap($map);

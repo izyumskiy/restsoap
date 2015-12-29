@@ -2,10 +2,10 @@
 namespace RestSoap\Rest;
 
 use RestSoap;
-use RestSoap\Soap\Template;
-use RestSoap\Soap\Xslt;
+use RestSoap\Template;
+use RestSoap\Xslt;
 
-class ControllerFront extends ApiBase {
+class ControllerFront extends RestSoap\ApiBase {
 
     private $_phpServerParams;
     private $_httpBody;
@@ -192,7 +192,7 @@ class ControllerFront extends ApiBase {
                 throw new \Exception("Rest object does no exist", self::ERROR_500);
 
 
-            $responseObj = new Api\Response($urlStructure['outputType'], $this->getWsdlParams('view_path') . $urlStructure['module'], $xmlResponseRootTitle);
+            $responseObj = new RestSoap\Response($urlStructure['outputType'], $this->getWsdlParams('view_path') . $urlStructure['module'], $xmlResponseRootTitle);
 
             $inputParams = $urlStructure['request'];
             if( $httpMethod != 'GET' )
@@ -207,7 +207,7 @@ class ControllerFront extends ApiBase {
             return $responseObj->setHeader(self::STATUS_200)->getSuccessResponse($result);
 
         } catch( \Exception $ex ) {
-            $responseObj = new Api\Response($this->getOutputType());
+            $responseObj = new RestSoap\Response($this->getOutputType());
             return $responseObj->setHeader($ex->getCode())->getErrorResponse($ex->getMessage(), $ex->getCode());
         }
     }

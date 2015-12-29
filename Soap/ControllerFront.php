@@ -2,10 +2,10 @@
 namespace RestSoap\Soap;
 
 use RestSoap;
-use RestSoap\Soap\Template;
-use RestSoap\Soap\Xslt;
+use RestSoap\Template;
+use RestSoap\Xslt;
 
-class ControllerFront extends Api\ApiBase {
+class ControllerFront extends RestSoap\ApiBase {
 
     private $_objectName;
     private $_showWSDL;
@@ -88,7 +88,7 @@ class ControllerFront extends Api\ApiBase {
     protected function renderWsdlFile( $objectName ) {
         header('HTTP/1.1 200 OK');
         header('Content-type: text/xml; charset=utf-8');
-        $tpl = new Api\Template\Templater();
+        $tpl = new Template\Templater();
         $tpl->doHtml( $this->getWsdlParams('view_path') . $objectName . '.wsdl', $this->getWsdlParams());
     }
 
@@ -106,10 +106,10 @@ class ControllerFront extends Api\ApiBase {
     private function checkXmlRequestValidation($xmlData) {
         if( empty($xmlData) )
             return true;
-        $tpl = new Api\Template\Templater();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../views/api/xsl/get_xsd_schema.xsl' );
+        $tpl = new Template\Templater();
+        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_xsd_schema.xsl' );
         $wsdl = $tpl->formOutput( $this->getWsdlParams('view_path') . $this->getObjectName() . '.wsdl' );
-        $xslt = new Api\Xslt\Transformer();
+        $xslt = new Xslt\Transformer();
         $xmlObj = $xslt->transform($wsdl, $xsl);
 
         $xsd = $xmlObj->asXML();
@@ -151,7 +151,7 @@ class ControllerFront extends Api\ApiBase {
             else
                 $this->runServiceMethod( $this->getObjectName(), $this->getWsdlParams() );
         } catch(\Exception $ex) {
-            $responseObj = new Api\Response('xml');
+            $responseObj = new RestSoap\Response('xml');
             $response = $responseObj->setHeader($ex->getCode())->getErrorResponse($ex->getMessage(), $ex->getCode());
             echo $response;
         }
