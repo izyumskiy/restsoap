@@ -154,7 +154,7 @@ class Response extends ApiBase {
         if( $outputType != self::RESP_XML )
             return $this;
         $tpl = new Template\Templater();
-        $xsl = $tpl->formOutput(dirname(__FILE__) . '/views/api/xsl/get_xsd_schema.xsl', array());
+        $xsl = $tpl->formOutput(dirname(__FILE__) . '/xsl/get_xsd_schema.xsl', array());
         $wsdl = $tpl->formOutput($this->getWsdl() . '.wsdl', array());
         $xslt = new Xslt\Transformer();
         $xmlObj = $xslt->transform($wsdl, $xsl );
