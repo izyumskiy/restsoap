@@ -1,6 +1,6 @@
 <?php
 
-namespace RestSoap\Api\Template;
+namespace RestSoap\Template;
 
 class Templater {
 

@@ -5,7 +5,7 @@
  *
  * @package RestSoap
  */
-namespace RestSoap\Api;
+namespace RestSoap;
 
 class ApiBase {
 

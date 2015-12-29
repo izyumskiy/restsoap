@@ -1,9 +1,9 @@
 <?php
-namespace RestSoap\Api\Soap;
+namespace RestSoap\Soap;
 
-use RestSoap\Api;
-use RestSoap\Api\Soap\Template;
-use RestSoap\Api\Soap\Xslt;
+use RestSoap;
+use RestSoap\Soap\Template;
+use RestSoap\Soap\Xslt;
 
 class ControllerFront extends Api\ApiBase {
 

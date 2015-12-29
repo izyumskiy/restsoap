@@ -2,7 +2,7 @@
 /**
  * XSLT transforms
  */
-namespace RestSoap\Api\Xslt;
+namespace RestSoap\Xslt;
 
 class Transformer {
 

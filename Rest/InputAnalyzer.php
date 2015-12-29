@@ -1,9 +1,9 @@
 <?php
-namespace RestSoap\Api\Rest;
+namespace RestSoap\Rest;
 
-use RestSoap\Api;
-use RestSoap\Api\Soap\Template;
-use RestSoap\Api\Soap\Xslt;
+use RestSoap;
+use RestSoap\Soap\Template;
+use RestSoap\Soap\Xslt;
 
 class InputAnalyzer extends UrlAnalyzer {
 

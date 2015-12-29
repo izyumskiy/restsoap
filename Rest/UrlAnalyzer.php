@@ -11,11 +11,11 @@
  * На выходе класс формирует соответствующую структуру, которая будет использоваться в Api_Rest_Controller
  *
  */
-namespace RestSoap\Api\Rest;
+namespace RestSoap\Rest;
 
-use RestSoap\Api;
-use RestSoap\Api\Soap\Template;
-use RestSoap\Api\Soap\Xslt;
+use RestSoap;
+use RestSoap\Soap\Template;
+use RestSoap\Soap\Xslt;
 
 class UrlAnalyzer extends Api\ApiBase {
 

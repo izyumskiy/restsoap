@@ -1,9 +1,8 @@
 <?php
-namespace RestSoap\Api;
+namespace RestSoap;
 
-use RestSoap\Api;
-use RestSoap\Api\Soap\Template;
-use RestSoap\Api\Soap\Xslt;
+use RestSoap\Soap\Template;
+use RestSoap\Soap\Xslt;
 
 class Response extends ApiBase {
 
