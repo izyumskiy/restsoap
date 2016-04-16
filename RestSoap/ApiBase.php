@@ -17,7 +17,8 @@ class ApiBase {
     const RESP_SOAP = 'soap';
     const RESP_JSON = 'json';
     const RESP_XML = 'xml';
-    const RESP_XML_TEST = 'xml_test'; // Используется для вывода XML без валидации по XSD
+    const RESP_XML_TEST = 'xml_test'; // used for output XML without validation
+    const RESP_BINARY = 'binary';
 
 	/**
      * Преобразовать PHP-массив в XML

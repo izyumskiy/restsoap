@@ -77,11 +77,11 @@ class InputAnalyzer extends UrlAnalyzer {
      * @throws \Exception
      */
     private function isValidXmlRequest($xmlData) {
-        $tpl = $this->getCmsViewer();
+        $tpl = new Template\Templater();
         $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_xsd_schema.xsl', []);
         $wsdlViewPath = $this->getWsdlParams('view_path');
         $wsdl = $tpl->formOutput( $wsdlViewPath . $this->getModuleName() . '.wsdl', []);
-        $xslt = new Api\Xslt\Transformer();
+        $xslt = new Xslt\Transformer();
         $xmlObj = $xslt->transform($wsdl, $xsl);
 
         $xsd = $xmlObj->asXML();
@@ -110,12 +110,17 @@ class InputAnalyzer extends UrlAnalyzer {
         return $out;
     }
 
-    public function getJsonHttpBody($xmlRequestRootTitle) {
+    public function getJsonHttpBody($xmlRequestRootTitle, $getParams) {
         try {
             $data = $this->getData();
             $encodedData['request'] = json_decode($data, true);
             if( is_null($encodedData['request']) || empty($encodedData['request']) )
                 throw new \InvalidArgumentException("Input data has wrong format", self::ERROR_400);
+            foreach ($getParams as $key => $val) {
+                if(!array_key_exists($key, $encodedData['request'])) {
+                    $encodedData['request'][$key] = $val;
+                }
+            }
 
             // JSON is converted to XML for validation by XSD-scheme that's contained in WSDL
             $xml = new \SimpleXMLElement("<?xml version=\"1.0\"?><" . $xmlRequestRootTitle . "></" . $xmlRequestRootTitle . ">");
@@ -128,18 +133,40 @@ class InputAnalyzer extends UrlAnalyzer {
         }
     }
 
-    public function getXmlHttpBody() {
+    public function getXmlHttpBody($xmlRequestRootTitle, $getParams) {
         try {
             $result = [];
             $data = $this->getData();
-            $this->isValidXmlRequest($data);
-
             $xmlData = simplexml_load_string( $data );
             $resultFinal['request'] = $this->xmlToArray($xmlData, $result);
+            foreach ($getParams as $key => $val) {
+                if(!array_key_exists($key, $resultFinal['request']) && !is_null($getParams[$key])) {
+                    $resultFinal['request'][$key] = $val;
+                }
+            }
+
+            // JSON is converted to XML for validation by XSD-scheme that's contained in WSDL
+            $xml = new \SimpleXMLElement("<?xml version=\"1.0\"?><" . $xmlRequestRootTitle . "></" . $xmlRequestRootTitle . ">");
+            $this->arrayToXml($resultFinal['request'], $xml);
+            $this->isValidXmlRequest($xml->saveXML());
+            
+            //$this->isValidXmlRequest($data);
+
+            
 
             return $resultFinal;
         } catch(\Exception $ex) {
             throw new \Exception("XmlHttpBody Error: " . $ex->getMessage(), $ex->getCode());
+        }
+    }
+    
+    public function getRawHttpBody() {
+        try {
+            $data = $this->getData();
+            
+            return $data;
+        } catch (\Exception $ex) {
+            throw new \Exception("HttpBody Error: " . $ex->getMessage(), $ex->getCode());
         }
     }
 }

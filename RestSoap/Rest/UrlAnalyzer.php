@@ -37,6 +37,9 @@ class UrlAnalyzer extends RestSoap\ApiBase {
         $getParams = array();
         foreach( $getParamsSource as $key => $value ) {
             $res = explode('=', $value);
+            if( count($res) != 2 ) {
+                continue;
+            }
             $getParams[$res[0]] = $res[1];
         }
         return $getParams;
@@ -172,7 +175,7 @@ class UrlAnalyzer extends RestSoap\ApiBase {
             throw new \InvalidArgumentException("UrlAnalyzer; outputType does not exist", self::ERROR_400);
         $outputType = $url[4];
 
-        if( !in_array($outputType, array(self::RESP_JSON, self::RESP_XML, self::RESP_XML_TEST)) )
+        if( !in_array($outputType, array(self::RESP_JSON, self::RESP_XML, self::RESP_XML_TEST, self::RESP_BINARY)) )
             throw new \InvalidArgumentException("UrlAnalyzer; outputType " . $outputType. " is not provided", self::ERROR_400);
 
         return $outputType;
@@ -276,7 +279,7 @@ class UrlAnalyzer extends RestSoap\ApiBase {
             if( isset($getParams[$paramName]) && !empty($getParams[$paramName]) ) {
                 $params[$paramName] = $this->getParamValue($paramName, $paramType, $getParams[$paramName]);
             }
-            if( (!isset($params[$paramName]) || $params[$paramName] == null) && $paramType['required'] === true ) {
+            if( (!isset($params[$paramName]) || $params[$paramName] == null) && $paramType['required'] === true && $this->getHttpMethod() == 'GET' ) {
                 throw new \Exception("Element '" . $paramName . "' is required.", self::ERROR_403);
             }
         }

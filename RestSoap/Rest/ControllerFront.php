@@ -78,7 +78,7 @@ class ControllerFront extends RestSoap\ApiBase {
 
     protected function getRequestType() {
         $vars = $this->getPhpServerParams();
-        if( !isset($vars['REQUEST_METHOD']) || !in_array($vars['REQUEST_METHOD'], ['GET', 'POST', 'PUT']))
+        if( !isset($vars['REQUEST_METHOD']) || !in_array($vars['REQUEST_METHOD'], ['GET', 'POST', 'PUT', 'DELETE']))
             throw new \InvalidArgumentException("RestSoap ControllerFront; Request method is not specified", self::ERROR_400);
         return $vars['REQUEST_METHOD'];
     }
@@ -133,37 +133,46 @@ class ControllerFront extends RestSoap\ApiBase {
      * Get input array data from http body
      *
      * @param string $xmlRequestRootTitle
+     * @param array $getParams
      * @return array
      */
-    protected function getRequestBody($xmlRequestRootTitle) {
+    protected function getRequestBody($xmlRequestRootTitle, $getParams) {
         $requestType = $this->getRequestType();
-        if( !in_array($requestType, ['POST', 'PUT']) )
-            return '';
+        if( !in_array($requestType, ['POST', 'PUT']) ) {
+            return [];
+        }
         $urlStructure = $this->getUrLStructure();
-        if( is_null($urlStructure) )
+        if( is_null($urlStructure) ) {
             throw new \InvalidArgumentException("ControllerFront; URL is not analyzed. Run parseURL method at first", self::ERROR_400);
-        if( !isset($urlStructure['outputType']) || !in_array($urlStructure['outputType'], ['json', 'xml']) )
+        }
+        if( !isset($urlStructure['outputType']) || !in_array($urlStructure['outputType'], ['json', 'xml', 'binary', 'xml_test']) ) {
             throw new \InvalidArgumentException("ControllerFront; Can not find outputType in url structure array", self::ERROR_400);
-        if( !isset($urlStructure['restObject']) || empty($urlStructure['restObject']) )
+        }
+        if( !isset($urlStructure['restObject']) || empty($urlStructure['restObject']) ) {
             throw new \InvalidArgumentException("ControllerFront; Can not find restObject in url structure array", self::ERROR_400);
-        if( !isset($urlStructure['module']) || empty($urlStructure['module']) )
+        }
+        if( !isset($urlStructure['module']) || empty($urlStructure['module']) ) {
             throw new \InvalidArgumentException("ControllerFront; Can not find module in url structure array", self::ERROR_400);
+        }
 
         $result = [];
         $inputAnalyzer = new InputAnalyzer($this->getHttpBody(), $urlStructure['restObject'], $urlStructure['module'], ['view_path' => $this->getWsdlParams('view_path')]);
         switch($urlStructure['outputType']) {
+            case 'binary':
+                $result = $inputAnalyzer->getRawHttpBody();
+                break;
             case 'json':
-                $result = $inputAnalyzer->getJsonHttpBody($xmlRequestRootTitle);
+                $result = $inputAnalyzer->getJsonHttpBody($xmlRequestRootTitle, $getParams);
                 break;
             case 'xml':
-                $result = $inputAnalyzer->getXmlHttpBody();
+                $result = $inputAnalyzer->getXmlHttpBody($xmlRequestRootTitle, $getParams);
                 /**
                  *  process xml like
                  *
-                 * <request>
+                 * <requestMethodName>
                  *  <param1>...</param1>
                  *  </param2>...</param2>
-                 * </request>
+                 * </requestMethodName>
                  */
                 break;
         }
@@ -177,6 +186,8 @@ class ControllerFront extends RestSoap\ApiBase {
         try {
             $httpMethod = $this->getRequestType();
             $urlStructure = $this->parseURL();
+            
+            $inputParams = $urlStructure['request'];
 
             if( $httpMethod != $urlStructure['httpMethod'] )
                 throw new \Exception("ControllerFront; Request HTTP Method " . $urlStructure['httpMethod'] . " is not the same as WSDL defined HTTP Method", self::ERROR_400);
@@ -184,7 +195,7 @@ class ControllerFront extends RestSoap\ApiBase {
             $xmlRequestRootTitle = $urlStructure['PHPmethod'] .  'RequestData';
             $xmlResponseRootTitle = $urlStructure['PHPmethod'] .  'ResponseData';
 
-            $httpBodyParameters = $this->getRequestBody($xmlRequestRootTitle);
+            $httpBodyParameters = $this->getRequestBody($xmlRequestRootTitle, $inputParams);
 
             $className = $urlStructure['PHPclass'];
             $method = $urlStructure['PHPmethod'];
@@ -194,9 +205,9 @@ class ControllerFront extends RestSoap\ApiBase {
 
             $responseObj = new RestSoap\Response($urlStructure['outputType'], $this->getWsdlParams('view_path') . $urlStructure['module'], $xmlResponseRootTitle);
 
-            $inputParams = $urlStructure['request'];
-            if( $httpMethod != 'GET' )
-                $inputParams = $httpBodyParameters['request'];
+            if( $httpMethod != 'GET' && is_array($httpBodyParameters) ) {
+                $inputParams = array_merge($inputParams, $httpBodyParameters['request']);
+            }
             $class = new $className($this->getWsdlParams());
             $result = $class->$method($inputParams);
             /**

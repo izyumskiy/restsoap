@@ -106,7 +106,7 @@ class Response extends ApiBase {
     {
         if( !isset($this->_outputType) )
             throw new \Exception("Output type does not defined", self::ERROR_500);
-        if( !in_array($this->_outputType, array(self::RESP_SOAP, self::RESP_XML, self::RESP_JSON, self::RESP_XML_TEST) ) )
+        if( !in_array($this->_outputType, array(self::RESP_SOAP, self::RESP_XML, self::RESP_JSON, self::RESP_XML_TEST, self::RESP_BINARY) ) )
             throw new \Exception("Output type " . $this->_outputType . " is wrong", self::ERROR_500);
         return $this->_outputType;
     }
@@ -134,6 +134,10 @@ class Response extends ApiBase {
      * @return Response
      */
     private function checkApiResponseCorrection() {
+        // don't check response if we want to return file in output stream
+        if( $this->getOutputType() == self::RESP_BINARY )
+            return $this;
+        
         $response = $this->getResponse();
         if( !is_array($response) )
             throw new \Exception("Empty response", self::ERROR_500);
@@ -176,6 +180,7 @@ class Response extends ApiBase {
             $outputType = $this->getOutputType();
             switch($outputType) {
                 case self::RESP_SOAP:
+                case self::RESP_BINARY:
                     break;
                 case self::RESP_JSON:
                     $this->setResponse(json_encode($this->getResponse()));
@@ -225,6 +230,10 @@ class Response extends ApiBase {
     public function setHeader($httpCode) {
         $outputType = $this->getOutputType();
         switch($outputType) {
+            case self::RESP_BINARY:
+                header('HTTP/1.1 ' . $this->getHttpHeaderByCode($httpCode));
+                header('Content-type: application/json; charset=utf-8');
+                break;
             case self::RESP_JSON:
                 header('HTTP/1.1 ' . $this->getHttpHeaderByCode($httpCode));
                 header('Content-type: application/json; charset=utf-8');
