@@ -175,7 +175,7 @@ class UrlAnalyzer extends RestSoap\ApiBase {
             throw new \InvalidArgumentException("UrlAnalyzer; outputType does not exist", self::ERROR_400);
         $outputType = $url[4];
 
-        if( !in_array($outputType, array(self::RESP_JSON, self::RESP_XML, self::RESP_XML_TEST, self::RESP_BINARY)) )
+        if( !in_array($outputType, array(self::RESP_JSON, self::RESP_XML, self::RESP_XML_TEST, self::RESP_RAW)) )
             throw new \InvalidArgumentException("UrlAnalyzer; outputType " . $outputType. " is not provided", self::ERROR_400);
 
         return $outputType;

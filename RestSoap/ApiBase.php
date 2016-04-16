@@ -18,7 +18,7 @@ class ApiBase {
     const RESP_JSON = 'json';
     const RESP_XML = 'xml';
     const RESP_XML_TEST = 'xml_test'; // used for output XML without validation
-    const RESP_BINARY = 'binary';
+    const RESP_RAW = 'raw';
 
 	/**
      * Преобразовать PHP-массив в XML

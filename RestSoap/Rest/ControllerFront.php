@@ -145,7 +145,7 @@ class ControllerFront extends RestSoap\ApiBase {
         if( is_null($urlStructure) ) {
             throw new \InvalidArgumentException("ControllerFront; URL is not analyzed. Run parseURL method at first", self::ERROR_400);
         }
-        if( !isset($urlStructure['outputType']) || !in_array($urlStructure['outputType'], ['json', 'xml', 'binary', 'xml_test']) ) {
+        if( !isset($urlStructure['outputType']) || !in_array($urlStructure['outputType'], [RestSoap\ApiBase::RESP_JSON, RestSoap\ApiBase::RESP_XML, RestSoap\ApiBase::RESP_RAW, RestSoap\ApiBase::RESP_XML_TEST]) ) {
             throw new \InvalidArgumentException("ControllerFront; Can not find outputType in url structure array", self::ERROR_400);
         }
         if( !isset($urlStructure['restObject']) || empty($urlStructure['restObject']) ) {
@@ -158,13 +158,13 @@ class ControllerFront extends RestSoap\ApiBase {
         $result = [];
         $inputAnalyzer = new InputAnalyzer($this->getHttpBody(), $urlStructure['restObject'], $urlStructure['module'], ['view_path' => $this->getWsdlParams('view_path')]);
         switch($urlStructure['outputType']) {
-            case 'binary':
+            case RestSoap\ApiBase::RESP_RAW:
                 $result = $inputAnalyzer->getRawHttpBody();
                 break;
-            case 'json':
+            case RestSoap\ApiBase::RESP_JSON:
                 $result = $inputAnalyzer->getJsonHttpBody($xmlRequestRootTitle, $getParams);
                 break;
-            case 'xml':
+            case RestSoap\ApiBase::RESP_XML:
                 $result = $inputAnalyzer->getXmlHttpBody($xmlRequestRootTitle, $getParams);
                 /**
                  *  process xml like

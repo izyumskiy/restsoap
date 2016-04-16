@@ -42,32 +42,33 @@ class Response extends ApiBase {
      */
     private function getRootNode()
     {
-        if( !isset($this->_rootNode) || empty($this->_rootNode) )
+        if( !isset($this->_rootNode) || empty($this->_rootNode) ) {
             $this->setRootNode('response');
+        }
         return $this->_rootNode;
     }
 
-	/**
-	 * @return string
-	 */
-	private function getNameSpaces(){
-		$attr_namespaces = "";
-		$response = $this->getResponse();
-		if(!empty($response['namespaces']) && is_array($response['namespaces'])){
-			foreach($response['namespaces'] as $namespace => $url){
-				$attr_namespaces .= $namespace.'="'.$url.'" ';
-			};
-		}
-		return $attr_namespaces;
-	}
+    /**
+     * @return string
+     */
+    private function getNameSpaces(){
+        $attr_namespaces = "";
+        $response = $this->getResponse();
+        if(!empty($response['namespaces']) && is_array($response['namespaces'])) {
+                foreach($response['namespaces'] as $namespace => $url) {
+                        $attr_namespaces .= $namespace.'="'.$url.'" ';
+                }
+        }
+        return $attr_namespaces;
+    }
 
-	/**
-	 * @return string
-	 */
-	private function getItemName(){
-		$response = $this->getResponse();
-		return (!empty($response['item_name'])) ? $response['item_name'] : 'item';
-	}
+    /**
+     * @return string
+     */
+    private function getItemName(){
+        $response = $this->getResponse();
+        return (!empty($response['item_name'])) ? $response['item_name'] : 'item';
+    }
 
     /**
      * @param array $response
@@ -84,8 +85,9 @@ class Response extends ApiBase {
      */
     private function getResponse()
     {
-        if( !isset($this->_response) || empty($this->_response) )
-            throw new \Exception("Response does not exist", self::ERROR_500);
+        if( !isset($this->_response) || empty($this->_response) ) {
+            throw new \Exception("Response does not exist or empty", self::ERROR_500);
+        }
         return $this->_response;
     }
 
@@ -104,10 +106,12 @@ class Response extends ApiBase {
      */
     private function getOutputType()
     {
-        if( !isset($this->_outputType) )
-            throw new \Exception("Output type does not defined", self::ERROR_500);
-        if( !in_array($this->_outputType, array(self::RESP_SOAP, self::RESP_XML, self::RESP_JSON, self::RESP_XML_TEST, self::RESP_BINARY) ) )
-            throw new \Exception("Output type " . $this->_outputType . " is wrong", self::ERROR_500);
+        if( !isset($this->_outputType) ) {
+            throw new \Exception("Output type is not defined", self::ERROR_500);
+        }
+        if( !in_array($this->_outputType, array(self::RESP_SOAP, self::RESP_XML, self::RESP_JSON, self::RESP_XML_TEST, self::RESP_RAW) ) ) {
+                throw new \Exception("Output type " . $this->_outputType . " is wrong", self::ERROR_500);
+        }
         return $this->_outputType;
     }
 
@@ -134,18 +138,27 @@ class Response extends ApiBase {
      * @return Response
      */
     private function checkApiResponseCorrection() {
-        // don't check response if we want to return file in output stream
-        if( $this->getOutputType() == self::RESP_BINARY )
-            return $this;
-        
         $response = $this->getResponse();
-        if( !is_array($response) )
-            throw new \Exception("Empty response", self::ERROR_500);
-        if( !isset($response['status']) || (int)$response['status'] == 0 )
+        
+        // don't check response if we want to return file in output stream
+        if( $this->getOutputType() == self::RESP_RAW ) {
+            if( is_array($response) ) {
+                throw new \Exception("Array type can not be used in raw response", self::ERROR_500);
+            }
+            
+            return $this;
+        }
+        
+        if( !is_array($response) ) {
+            throw new \Exception("Method should return array data type", self::ERROR_500);
+        }
+        if( !isset($response['status']) || (int)$response['status'] == 0 ) {
             throw new \Exception("Response status is not defined", self::ERROR_500);
-
-        if( !isset($response['data']) )
+        }
+        if( !isset($response['data']) ) {
             throw new \Exception("Incorrect response", self::ERROR_500);
+        }
+        
         return $this;
     }
 
@@ -155,8 +168,9 @@ class Response extends ApiBase {
      * @return Response
      */
     private function validateXmlResponse($outputType) {
-        if( $outputType != self::RESP_XML )
+        if( $outputType != self::RESP_XML ) {
             return $this;
+        }
         $tpl = new Template\Templater();
         $xsl = $tpl->formOutput(dirname(__FILE__) . '/xsl/get_xsd_schema.xsl', array());
         $wsdl = $tpl->formOutput($this->getWsdl() . '.wsdl', array());
@@ -165,8 +179,9 @@ class Response extends ApiBase {
 
         $xsd = $xmlObj->asXML();
         $result = $xslt->validateXmlByXsd($this->getResponse(), $xsd);
-        if( $result['validation'] === false )
+        if( $result['validation'] === false ) {
             throw new \Exception("Output error: " . $result['errors'][0], self::ERROR_500);
+        }
         return $this;
     }
 
@@ -180,7 +195,7 @@ class Response extends ApiBase {
             $outputType = $this->getOutputType();
             switch($outputType) {
                 case self::RESP_SOAP:
-                case self::RESP_BINARY:
+                case self::RESP_RAW:
                     break;
                 case self::RESP_JSON:
                     $this->setResponse(json_encode($this->getResponse()));
@@ -220,6 +235,9 @@ class Response extends ApiBase {
         if( !in_array($code, array(self::ERROR_400, self::ERROR_403, self::ERROR_500) )) {
             $code = self::ERROR_500;
         }
+        if( !in_array($this->getOutputType(), [self::RESP_XML, self::RESP_JSON, self::RESP_XML_TEST]) ) {
+            $this->setOutputType(self::RESP_XML);
+        }
         $errorResponse = array('status' => (int)$code, 'error' => (string)$errorMessage, 'data' => array());
         return $this->setResponse($errorResponse)
                     ->checkApiResponseCorrection()
@@ -230,9 +248,9 @@ class Response extends ApiBase {
     public function setHeader($httpCode) {
         $outputType = $this->getOutputType();
         switch($outputType) {
-            case self::RESP_BINARY:
+            case self::RESP_RAW:
                 header('HTTP/1.1 ' . $this->getHttpHeaderByCode($httpCode));
-                header('Content-type: application/json; charset=utf-8');
+                header('Content-type: text/html; charset=utf-8');
                 break;
             case self::RESP_JSON:
                 header('HTTP/1.1 ' . $this->getHttpHeaderByCode($httpCode));
