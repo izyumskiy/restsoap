@@ -172,8 +172,8 @@ class Response extends ApiBase {
             return $this;
         }
         $tpl = new Template\Templater();
-        $xsl = $tpl->formOutput(dirname(__FILE__) . '/xsl/get_xsd_schema.xsl', array());
-        $wsdl = $tpl->formOutput($this->getWsdl() . '.wsdl', array());
+        $xsl = $tpl->formOutput(dirname(__FILE__) . '/xsl/get_xsd_schema.xsl', []);
+        $wsdl = $tpl->formOutput($this->getWsdl() . '.wsdl', []);
         $xslt = new Xslt\Transformer();
         $xmlObj = $xslt->transform($wsdl, $xsl );
 
@@ -238,7 +238,7 @@ class Response extends ApiBase {
         if( !in_array($this->getOutputType(), [self::RESP_XML, self::RESP_JSON, self::RESP_XML_TEST]) ) {
             $this->setOutputType(self::RESP_XML);
         }
-        $errorResponse = array('status' => (int)$code, 'error' => (string)$errorMessage, 'data' => array());
+        $errorResponse = array('status' => (int)$code, 'error' => (string)$errorMessage, 'data' => []);
         return $this->setResponse($errorResponse)
                     ->checkApiResponseCorrection()
                     ->formatResponse()

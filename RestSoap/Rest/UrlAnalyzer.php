@@ -28,13 +28,15 @@ class UrlAnalyzer extends RestSoap\ApiBase {
      * @throws \Exception
      */
     private function extractGetParamsFromUrl() {
-        if( !isset($this->_url) || empty($this->_url)  )
+        if( !isset($this->_url) || empty($this->_url)  ) {
             throw new \InvalidArgumentException("UrlAnalyzer; Parameter url does not exist", self::ERROR_500 );
+        }
         $uri = explode('?', $this->_url);
-        if( !isset($uri[1]) )
-            return array();
+        if( !isset($uri[1]) ) {
+            return [];
+        }
         $getParamsSource = explode('&', $uri[1]);
-        $getParams = array();
+        $getParams = [];
         foreach( $getParamsSource as $key => $value ) {
             $res = explode('=', $value);
             if( count($res) != 2 ) {
@@ -58,8 +60,9 @@ class UrlAnalyzer extends RestSoap\ApiBase {
      */
     private function getUrlStructure()
     {
-        if( !isset($this->_url) || empty($this->_url)  )
+        if( !isset($this->_url) || empty($this->_url)  ) {
             throw new \InvalidArgumentException("UrlAnalyzer; Parameter url does not exist", self::ERROR_500 );
+        }
         $uri = explode('?', $this->_url);
         $urlStructure = explode('/', $uri[0]);
         return $urlStructure;
@@ -71,11 +74,12 @@ class UrlAnalyzer extends RestSoap\ApiBase {
      * @return Template\Templater
      */
     protected function getViewer() {
-        if( $this->_viewer instanceof Template\Templater )
+        if( $this->_viewer instanceof Template\Templater ) {
             return $this->_viewer;
-        else
+        } else {
             $this->_viewer = new Template\Templater();
             return $this->_viewer;
+        }
     }
 
     private $_wsdlParams;
@@ -93,13 +97,14 @@ class UrlAnalyzer extends RestSoap\ApiBase {
      */
     protected function getWsdlParams($paramName = '')
     {
-        if( !isset($this->_wsdlParams) || empty($this->_wsdlParams) )
-            return array();
-        else {
-            if(!empty($paramName) && isset($this->_wsdlParams[$paramName]))
+        if( !isset($this->_wsdlParams) || empty($this->_wsdlParams) ) {
+            return [];
+        } else {
+            if(!empty($paramName) && isset($this->_wsdlParams[$paramName])) {
                 return $this->_wsdlParams[$paramName];
-            else
+            } else {
                 return $this->_wsdlParams;
+            }
         }
     }
 
@@ -118,32 +123,43 @@ class UrlAnalyzer extends RestSoap\ApiBase {
      */
     protected function getHttpMethod()
     {
-        if( !isset($this->_httpMethod) || empty($this->_httpMethod) )
+        if( !isset($this->_httpMethod) || empty($this->_httpMethod) ) {
             return 'GET';
-        else
+        } else {
             return $this->_httpMethod;
+        }
     }
 
 
-    public function __construct($url, $httpMethod, $wsdlParams = array() ) {
+    /**
+     * 
+     * @param string $url
+     * @param string $httpMethod
+     * @param array $wsdlParams
+     */
+    public function __construct($url, $httpMethod, $wsdlParams = [] ) {
         $this->setUrl($url);
         $this->setHttpMethod($httpMethod);
         $this->setWsdlParams($wsdlParams);
     }
 
+    /**
+     * 
+     * @return array
+     */
     public function getStructure() {
         $module = $this->getModuleName();
         $outputType = $this->getOutputType();
         $restObject = $this->getRestObjectInfo();
         $params = $this->getParameters();
 
-        return array( 'module'      => $module,
-                    'outputType'    => $outputType,
-                    'restObject'    => $restObject['call'],
-                    'httpMethod'    => $restObject['http_method'],
-                    'PHPclass'      => $restObject['class'],
-                    'PHPmethod'     => $restObject['method'],
-                    'request'       => $params );
+        return [ 'module'      => $module,
+                 'outputType'    => $outputType,
+                 'restObject'    => $restObject['call'],
+                 'httpMethod'    => $restObject['http_method'],
+                 'PHPclass'      => $restObject['class'],
+                 'PHPmethod'     => $restObject['method'],
+                 'request'       => $params ];
     }
 
     /**
@@ -171,12 +187,14 @@ class UrlAnalyzer extends RestSoap\ApiBase {
      */
     public function getOutputType() {
         $url = $this->getUrlStructure();
-        if( !isset($url[4]) || empty($url[4]) )
+        if( !isset($url[4]) || empty($url[4]) ) {
             throw new \InvalidArgumentException("UrlAnalyzer; outputType does not exist", self::ERROR_400);
+        }
         $outputType = $url[4];
 
-        if( !in_array($outputType, array(self::RESP_JSON, self::RESP_XML, self::RESP_XML_TEST, self::RESP_RAW)) )
+        if( !in_array($outputType, [self::RESP_JSON, self::RESP_XML, self::RESP_XML_TEST, self::RESP_RAW]) ) {
             throw new \InvalidArgumentException("UrlAnalyzer; outputType " . $outputType. " is not provided", self::ERROR_400);
+        }
 
         return $outputType;
     }
@@ -188,22 +206,24 @@ class UrlAnalyzer extends RestSoap\ApiBase {
      */
     private function getRestObjectInfo() {
         $url = $this->getUrlStructure();
-        if( !isset($url[5]) || empty($url[5]) )
+        if( !isset($url[5]) || empty($url[5]) ) {
             throw new \InvalidArgumentException("UrlAnalyzer; rest object name does not exist", self::ERROR_400);
+        }
         $restObjectName = $url[5];
 
         $tpl = $this->getViewer();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/rest_mapper.xsl', array());
+        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/rest_mapper.xsl', []);
         $wsdlViewPath = $this->getWsdlParams('view_path');
         $wsdlContent = $tpl->formOutput( $wsdlViewPath . $this->getModuleName() . '.wsdl', $this->getWsdlParams());
 
         $xslt = new Xslt\Transformer();
         $xml = $xslt->transform($wsdlContent, $xsl);
 
-        $result = array();
+        $result = [];
         $exception = true;
-        if( !$xml )
+        if( !$xml ) {
             throw new \Exception("UrlAnalyzer; WSDL-document is invalid", self::ERROR_500);
+        }
         foreach( $xml as $xmlRestTag ) {
             if( !empty($xmlRestTag['call'])
                 &&(string)$xmlRestTag['call'] == $restObjectName
@@ -220,8 +240,9 @@ class UrlAnalyzer extends RestSoap\ApiBase {
             }
         }
 
-        if( $exception )
+        if( $exception ) {
             throw new \InvalidArgumentException("UrlAnalyzer; rest object " . $restObjectName . " does not exist", self::ERROR_400);
+        }
 
         return $result;
     }
@@ -229,26 +250,26 @@ class UrlAnalyzer extends RestSoap\ApiBase {
     protected function getParamsWithDescriptions() {
         $restObjectInfo = $this->getRestObjectInfo();
         $tpl = $this->getViewer();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_request_params.xsl', array( 'call' => $restObjectInfo['call'], 'httpMethod' => $restObjectInfo['http_method'] ));
+        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_request_params.xsl', ['call' => $restObjectInfo['call'], 'httpMethod' => $restObjectInfo['http_method']] );
         $wsdlViewPath = $this->getWsdlParams('view_path');
         $wsdlContent = $tpl->formOutput( $wsdlViewPath . $this->getModuleName() . '.wsdl', $this->getWsdlParams());
 
         $xslt = new Xslt\Transformer();
         $xml = $xslt->transform($wsdlContent, $xsl);
 
-        $paramsDesc = array();
+        $paramsDesc = [];
         foreach( $xml as $xmlRestTag ) {
             if( (string)$xmlRestTag->type == 'NMTOKEN' ) {
-                $enum = array();
+                $enum = [];
                 foreach($xmlRestTag->enum->item as $enumItem) {
                     $enum[] = (string)$enumItem;
                 }
-                $paramsDesc[(string)$xmlRestTag->name] = array( 'type' => (string)$xmlRestTag->type,
-                                                                'enum' => $enum,
-                                                                'required' => (bool)((string)$xmlRestTag->required) );
+                $paramsDesc[(string)$xmlRestTag->name] = [ 'type' => (string)$xmlRestTag->type,
+                                                           'enum' => $enum,
+                                                           'required' => (bool)((string)$xmlRestTag->required) ];
             } else {
-                $paramsDesc[(string)$xmlRestTag->name] = array( 'type' => (string)$xmlRestTag->type,
-                                                                'required' => (bool)((string)$xmlRestTag->required) );
+                $paramsDesc[(string)$xmlRestTag->name] = [ 'type' => (string)$xmlRestTag->type,
+                                                           'required' => (bool)((string)$xmlRestTag->required) ];
             }
         }
         return $paramsDesc;
@@ -263,14 +284,15 @@ class UrlAnalyzer extends RestSoap\ApiBase {
         $getParams = $this->extractGetParamsFromUrl();
         $paramsDesc = $this->getParamsWithDescriptions();
 
-        $params = array();
+        $params = [];
         $url = $this->getUrlStructure();
         // URL offset
         $urlOffset = 6;
         foreach( $paramsDesc as $paramName => $paramType ) {
             $val = null;
-            if( isset($url[$urlOffset]) && !empty($url[$urlOffset]) )
+            if( isset($url[$urlOffset]) && !empty($url[$urlOffset]) ) {
                 $val = $url[$urlOffset];
+            }
             $params[$paramName] = $this->getParamValue($paramName, $paramType, $val);
             $urlOffset++;
 
@@ -288,42 +310,51 @@ class UrlAnalyzer extends RestSoap\ApiBase {
 
     protected function getParamValue($paramName, $paramType, $value = null) {
         $resultValue = null;
-        if( $value == null && $paramType['required'] === true )
+        if( $value == null && $paramType['required'] === true ) {
             return null;
+        }
+        
         switch($paramType['type']) {
             case 'int':
-                if( $value != "0" &&  (int)$value == 0 && $paramType['required'] === true )
+                if( $value != "0" &&  (int)$value == 0 && $paramType['required'] === true ) {
                     throw new \Exception("Element '" . $paramName . "': '" . $value . "' is not a valid value of the atomic type 'xs:int'.", self::ERROR_403);
-                if( !is_null($value) )
+                }
+                if( !is_null($value) ) {
                     $resultValue = (int)$value;
-                else
+                } else {
                     $resultValue = 0;
+                }
                 break;
             case 'string':
-                if( !is_null($value) && !empty($value) )
+                if( !is_null($value) && !empty($value) ) {
                     $resultValue = $value;
-                else
+                } else {
                     $resultValue = '';
+                }
                 break;
             case 'float':
-                if( !is_null($value) )
+                if( !is_null($value) ) {
                     $resultValue = (float)$value;
-                else
+                } else {
                     $resultValue = 0;
+                }
                 break;
             case 'datetime':
-                if( !is_null($value) )
+                if( !is_null($value) ) {
                     $resultValue = $value;
-                else
+                } else {
                     $resultValue = date("d.m.Y");
+                }
                 break;
             case 'boolean':
-                if( $value != "true" ||  $value != 'false' )
+                if( $value != "true" ||  $value != 'false' ) {
                     throw new \Exception("Element '" . $paramName . "': '" . $value . "' is not a valid value of the atomic type 'xs:boolean'.", self::ERROR_403);
-                if( !is_null($value) )
+                }
+                if( !is_null($value) ) {
                     $resultValue = (bool)$value;
-                else
+                } else {
                     $resultValue = true;
+                }
                 break;
             case 'NMTOKEN':
                 if( !in_array($value, $paramType['enum']) ) {
@@ -334,8 +365,9 @@ class UrlAnalyzer extends RestSoap\ApiBase {
                 break;
             default:
                 $resultValue = $value;
-                if( is_null($value) )
+                if( is_null($value) ) {
                     $resultValue = '';
+                }
                 break;
         }
         return $resultValue;

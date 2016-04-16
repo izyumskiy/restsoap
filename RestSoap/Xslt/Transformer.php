@@ -72,15 +72,14 @@ class Transformer {
      */
     public function validateXmlByXsd( $xml, $xsd ) {
         $isValid = false;
-        $err = array();
+        $err = [];
 
         $validator = new \DOMDocument( '1.0', 'UTF-8' );
         $validator->loadXML( $xml );
 
         libxml_use_internal_errors(true);
 
-        if (!$validator->schemaValidateSource($xsd))
-        {
+        if (!$validator->schemaValidateSource($xsd)) {
             $errors = libxml_get_errors();
             $i = 1;
             foreach ($errors as $error) {
@@ -88,10 +87,10 @@ class Transformer {
                 $i++;
             }
             libxml_clear_errors();
-        }
-        else
+        } else {
             $isValid = true;
+        }
         libxml_use_internal_errors(false);
-        return array( 'validation' => $isValid, 'errors' => $err );
+        return ['validation' => $isValid, 'errors' => $err];
     }
 }

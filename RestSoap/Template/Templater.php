@@ -10,7 +10,7 @@ class Templater {
      * @param string $tplPath
      * @param array $parameters
      */
-    public function doHtml( $tplPath, $parameters = array() ) {
+    public function doHtml( $tplPath, $parameters = [] ) {
         foreach ($parameters as $name => $value) {
             $$name = $value;
         }
@@ -26,7 +26,7 @@ class Templater {
      * @param string $tplPath
      * @param array $parameters
      */
-    public function formOutput( $tplPath, $parameters = array() ) {
+    public function formOutput( $tplPath, $parameters = [] ) {
         ob_start();
         $this->doHtml($tplPath, $parameters);
         $content = ob_get_contents();

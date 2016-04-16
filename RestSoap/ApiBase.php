@@ -31,27 +31,27 @@ class ApiBase {
     public function arrayToXml($data, \SimpleXMLElement &$xmlBlank, $itemName = 'item') {
         foreach($data as $key => $value) {
             if(is_array($value) || is_object($value)) {
-                if(!is_numeric($key)){
+                if(!is_numeric($key)) {
                     $subnode = $xmlBlank->addChild((string)$key);
                     $this->arrayToXml($value, $subnode, $itemName);
-                }
-                else{
+                } else {
                     $subnode = $xmlBlank->addChild($itemName);
                     $this->arrayToXml($value, $subnode, $itemName);
                 }
             }
             else {
                 $val = $value;
-                if( is_bool($value) )
+                if( is_bool($value) ) {
                     $val = ($value) ? 'true' : 'false';
-                else if( is_int($value) )
+                } else if( is_int($value) ) {
                     $val = (int)$value;
-                else
+                } else {
                     $val = htmlspecialchars("$value");
+                }
 
-                if(!is_numeric($key))
+                if(!is_numeric($key)) {
                     $xmlBlank->addChild("$key", $val );
-                else {
+                } else {
                     $xmlBlank->addChild($itemName, $val );
                 }
             }
