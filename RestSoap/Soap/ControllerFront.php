@@ -24,11 +24,12 @@ class ControllerFront extends RestSoap\ApiBase {
      */
     public function getWsdlParams($paramName = '')
     {
-        if( empty($paramName) )
+        if( empty($paramName) ) {
             return $this->_wsdlParams;
-        else {
-            if( !isset($this->_wsdlParams[$paramName]) )
+        } else {
+            if( !isset($this->_wsdlParams[$paramName]) ) {
                 throw new \InvalidArgumentException("ControllerFront; " . $paramName . " parameter does not exist", self::ERROR_400);
+            }
             return $this->_wsdlParams[$paramName];
         }
     }
@@ -46,12 +47,14 @@ class ControllerFront extends RestSoap\ApiBase {
      */
     private function getObjectName()
     {
-        if( !isset($this->_objectName) || empty($this->_objectName) )
+        if( !isset($this->_objectName) || empty($this->_objectName) ) {
             throw new \InvalidArgumentException("ControllerFront; WSDL does not exist", self::ERROR_400);
+        }
         $wsdl = $this->getWsdlParams('view_path') . $this->_objectName . '.wsdl';
-        if( !file_exists($wsdl) )
+        if( !file_exists($wsdl) ) {
             throw new \InvalidArgumentException("ControllerFront; WSDL " . $this->_objectName . $wsdl . " does not exist", self::ERROR_400);
-
+        }
+        
         return $this->_objectName;
     }
 
@@ -68,8 +71,9 @@ class ControllerFront extends RestSoap\ApiBase {
      */
     private function getShowWSDL()
     {
-        if( empty($this->_showWSDL) || $this->_showWSDL != 'show' )
+        if( empty($this->_showWSDL) || $this->_showWSDL != 'show' ) {
             return '';
+        }
         return $this->_showWSDL;
     }
 
@@ -78,7 +82,7 @@ class ControllerFront extends RestSoap\ApiBase {
      * @param string $showWsdl
      * @param array $wsdlParams
      */
-    public function __construct( $objectName, $showWsdl = null, $wsdlParams = array() ) {
+    public function __construct( $objectName, $showWsdl = null, $wsdlParams = [] ) {
         $this->setObjectName($objectName);
         $this->setShowWSDL($showWsdl);
         $this->setWsdlParams($wsdlParams);
@@ -104,8 +108,9 @@ class ControllerFront extends RestSoap\ApiBase {
     }
 
     private function checkXmlRequestValidation($xmlData) {
-        if( empty($xmlData) )
+        if( empty($xmlData) ) {
             return true;
+        }
         $tpl = new Template\Templater();
         $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_xsd_schema.xsl' );
         $wsdl = $tpl->formOutput( $this->getWsdlParams('view_path') . $this->getObjectName() . '.wsdl' );
@@ -114,8 +119,9 @@ class ControllerFront extends RestSoap\ApiBase {
 
         $xsd = $xmlObj->asXML();
         $result = $xslt->validateXmlByXsd($xmlData, $xsd);
-        if( $result['validation'] === false )
+        if( $result['validation'] === false ) {
             throw new \Exception("Output error: " . $result['errors'][0], self::ERROR_500);
+        }
         return true;
     }
 
@@ -135,7 +141,7 @@ class ControllerFront extends RestSoap\ApiBase {
 
     public function soapRequest( $uri, $apiClass, $wsdlParams ) {
         try {
-            $server = new \SoapServer(null, array('uri' => $uri));
+            $server = new \SoapServer(null, ['uri' => $uri]);
             $server->setClass($apiClass, $wsdlParams);
             $server->handle();
         } catch( \Exception $ex ) {
@@ -146,12 +152,13 @@ class ControllerFront extends RestSoap\ApiBase {
 
     public function process() {
         try {
-            if ( $this->getShowWSDL() == 'show' )
+            if ( $this->getShowWSDL() == 'show' ) {
                 $this->renderWsdlFile( $this->getObjectName() );
-            else
+            } else {
                 $this->runServiceMethod( $this->getObjectName(), $this->getWsdlParams() );
+            }
         } catch(\Exception $ex) {
-            $responseObj = new RestSoap\Response('xml');
+            $responseObj = new RestSoap\Response(self::RESP_XML);
             $response = $responseObj->setHeader($ex->getCode())->getErrorResponse($ex->getMessage(), $ex->getCode());
             echo $response;
         }

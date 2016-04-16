@@ -16,10 +16,11 @@ class Mapper extends RestSoap\ApiBase {
      */
     private function setViewParameters($viewParameters)
     {
-        if( !is_array($viewParameters) )
+        if( !is_array($viewParameters) ) {
             $this->_viewParameters = array();
-        else
+        } else {
             $this->_viewParameters = $viewParameters;
+        }
     }
 
     /**
@@ -27,11 +28,12 @@ class Mapper extends RestSoap\ApiBase {
      */
     private function getViewParameters($paramName = '')
     {
-        if( empty($paramName) )
+        if( empty($paramName) ) {
             return $this->_viewParameters;
-        else {
-            if( !isset($this->_viewParameters[$paramName]) )
+        } else {
+            if( !isset($this->_viewParameters[$paramName]) ) {
                 throw new \Exception("Mapper; " . $paramName . " parameter does not exist", self::ERROR_400);
+            }
             return $this->_viewParameters[$paramName];
         }
     }
@@ -49,8 +51,10 @@ class Mapper extends RestSoap\ApiBase {
      */
     public function getWsdlTitle()
     {
-        if( !isset($this->_wsdlTitle) )
+        if( !isset($this->_wsdlTitle) ) {
             throw new \Exception("Mapper; wsdlTitle parameter doesn't exist", self::ERROR_400);
+        }
+        
         return $this->_wsdlTitle;
     }
 
@@ -63,23 +67,26 @@ class Mapper extends RestSoap\ApiBase {
     }
 
     public function getClassName() {
-        if( !isset($this->_map) || !is_array($this->_map) || !isset($this->_map['class']) )
+        if( !isset($this->_map) || !is_array($this->_map) || !isset($this->_map['class']) ) {
             throw new \Exception('Mapper; Parameter class did not map from wsdl to php object', self::ERROR_500);
-
+        }
+        
         return $this->_map['class'];
     }
 
     public function getMethodName() {
-        if( !isset($this->_map) || !is_array($this->_map) || !isset($this->_map['method']) )
+        if( !isset($this->_map) || !is_array($this->_map) || !isset($this->_map['method']) ) {
             throw new \Exception('Mapper; Parameter method did not map from wsdl to php object', self::ERROR_500);
-
+        }
+        
         return $this->_map['method'];
     }
 
     public function getServiceUri() {
-        if( !isset($this->_map) || !is_array($this->_map) || !isset($this->_map['uri']) )
+        if( !isset($this->_map) || !is_array($this->_map) || !isset($this->_map['uri']) ) {
             throw new \Exception('Mapper; Parameter uri did not map from wsdl to php object', self::ERROR_500);
-
+        }
+        
         return $this->_map['uri'];
     }
 
