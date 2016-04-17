@@ -162,7 +162,7 @@ class InputAnalyzer extends UrlAnalyzer {
     
     public function getRawHttpBody() {
         try {
-            $data = $this->getData();
+            $data['request']['http_body'] = $this->getData();
             
             return $data;
         } catch (\Exception $ex) {
