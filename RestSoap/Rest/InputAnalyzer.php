@@ -78,9 +78,9 @@ class InputAnalyzer extends UrlAnalyzer {
      */
     private function isValidXmlRequest($xmlData) {
         $tpl = new Template\Templater();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_xsd_schema.xsl', []);
+        $xsl = $tpl->get( dirname(__FILE__) . '/../xsl/get_xsd_schema.xsl', []);
         $wsdlViewPath = $this->getWsdlParams('view_path');
-        $wsdl = $tpl->formOutput( $wsdlViewPath . $this->getModuleName() . '.wsdl', []);
+        $wsdl = $tpl->get( $wsdlViewPath . $this->getModuleName() . '.wsdl', []);
         $xslt = new Xslt\Transformer();
         $xmlObj = $xslt->transform($wsdl, $xsl);
 

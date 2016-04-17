@@ -102,8 +102,8 @@ class Mapper extends RestSoap\ApiBase {
      */
     public function setWsdlSoapMap() {
         $tpl = new Template\Templater();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_soap_class.xsl', array());
-        $wsdlContent = $tpl->formOutput( $this->getViewParameters('view_path') . $this->getWsdlTitle() . '.wsdl', $this->getViewParameters());
+        $xsl = $tpl->get( dirname(__FILE__) . '/../xsl/get_soap_class.xsl', array());
+        $wsdlContent = $tpl->get( $this->getViewParameters('view_path') . $this->getWsdlTitle() . '.wsdl', $this->getViewParameters());
 
         $xslt = new Xslt\Transformer();
         $xml = $xslt->transform($wsdlContent, $xsl);

@@ -212,9 +212,9 @@ class UrlAnalyzer extends RestSoap\ApiBase {
         $restObjectName = $url[5];
 
         $tpl = $this->getViewer();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/rest_mapper.xsl', []);
+        $xsl = $tpl->get( dirname(__FILE__) . '/../xsl/rest_mapper.xsl', []);
         $wsdlViewPath = $this->getWsdlParams('view_path');
-        $wsdlContent = $tpl->formOutput( $wsdlViewPath . $this->getModuleName() . '.wsdl', $this->getWsdlParams());
+        $wsdlContent = $tpl->get( $wsdlViewPath . $this->getModuleName() . '.wsdl', $this->getWsdlParams());
 
         $xslt = new Xslt\Transformer();
         $xml = $xslt->transform($wsdlContent, $xsl);
@@ -250,9 +250,9 @@ class UrlAnalyzer extends RestSoap\ApiBase {
     protected function getParamsWithDescriptions() {
         $restObjectInfo = $this->getRestObjectInfo();
         $tpl = $this->getViewer();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_request_params.xsl', ['call' => $restObjectInfo['call'], 'httpMethod' => $restObjectInfo['http_method']] );
+        $xsl = $tpl->get( dirname(__FILE__) . '/../xsl/get_request_params.xsl', ['call' => $restObjectInfo['call'], 'httpMethod' => $restObjectInfo['http_method']] );
         $wsdlViewPath = $this->getWsdlParams('view_path');
-        $wsdlContent = $tpl->formOutput( $wsdlViewPath . $this->getModuleName() . '.wsdl', $this->getWsdlParams());
+        $wsdlContent = $tpl->get( $wsdlViewPath . $this->getModuleName() . '.wsdl', $this->getWsdlParams());
 
         $xslt = new Xslt\Transformer();
         $xml = $xslt->transform($wsdlContent, $xsl);

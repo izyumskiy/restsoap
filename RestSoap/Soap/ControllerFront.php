@@ -93,7 +93,7 @@ class ControllerFront extends RestSoap\ApiBase {
         header('HTTP/1.1 200 OK');
         header('Content-type: text/xml; charset=utf-8');
         $tpl = new Template\Templater();
-        $tpl->doHtml( $this->getWsdlParams('view_path') . $objectName . '.wsdl', $this->getWsdlParams());
+        $tpl->render( $this->getWsdlParams('view_path') . $objectName . '.wsdl', $this->getWsdlParams());
     }
 
     protected function runServiceMethod( $objectName, $wsdlParams ) {
@@ -112,8 +112,8 @@ class ControllerFront extends RestSoap\ApiBase {
             return true;
         }
         $tpl = new Template\Templater();
-        $xsl = $tpl->formOutput( dirname(__FILE__) . '/../xsl/get_xsd_schema.xsl' );
-        $wsdl = $tpl->formOutput( $this->getWsdlParams('view_path') . $this->getObjectName() . '.wsdl' );
+        $xsl = $tpl->get( dirname(__FILE__) . '/../xsl/get_xsd_schema.xsl' );
+        $wsdl = $tpl->get( $this->getWsdlParams('view_path') . $this->getObjectName() . '.wsdl' );
         $xslt = new Xslt\Transformer();
         $xmlObj = $xslt->transform($wsdl, $xsl);
 

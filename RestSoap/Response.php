@@ -172,8 +172,8 @@ class Response extends ApiBase {
             return $this;
         }
         $tpl = new Template\Templater();
-        $xsl = $tpl->formOutput(dirname(__FILE__) . '/xsl/get_xsd_schema.xsl', []);
-        $wsdl = $tpl->formOutput($this->getWsdl() . '.wsdl', []);
+        $xsl = $tpl->get(dirname(__FILE__) . '/xsl/get_xsd_schema.xsl', []);
+        $wsdl = $tpl->get($this->getWsdl() . '.wsdl', []);
         $xslt = new Xslt\Transformer();
         $xmlObj = $xslt->transform($wsdl, $xsl );
 

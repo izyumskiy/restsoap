@@ -3,14 +3,14 @@
 namespace RestSoap\Template;
 
 class Templater {
-
+    
     /**
      * Returns template data to output
      *
      * @param string $tplPath
      * @param array $parameters
      */
-    public function doHtml( $tplPath, $parameters = [] ) {
+    public function render( $tplPath, $parameters = [] ) {
         foreach ($parameters as $name => $value) {
             $$name = $value;
         }
@@ -26,9 +26,9 @@ class Templater {
      * @param string $tplPath
      * @param array $parameters
      */
-    public function formOutput( $tplPath, $parameters = [] ) {
+    public function get( $tplPath, $parameters = [] ) {
         ob_start();
-        $this->doHtml($tplPath, $parameters);
+        $this->render($tplPath, $parameters);
         $content = ob_get_contents();
         ob_end_clean();
         return $content;
