@@ -126,16 +126,34 @@ class ControllerFront extends RestSoap\ApiBase {
     }
 
     /**
-     * get clear XML from SOAP envelop
+     * get clear Request XML from SOAP envelop
      *
      * @return string
      */
     private function getRequestFromEnvelope() {
         $soapEnvelope = file_get_contents("php://input");
-        $objNamePart = substr($this->getObjectName(), 0, 3);
-        $soapEnvelope = substr($soapEnvelope, strpos($soapEnvelope, '<typ:'), strpos($soapEnvelope, '</' . $objNamePart) - strpos($soapEnvelope, '<typ:'));
-        $soapEnvelope = str_replace('<typ:', '<', $soapEnvelope);
-        $request = str_replace('</typ:', '</', $soapEnvelope);
+        
+        // get all xml namespaces and remove them
+        preg_match_all("/\<\S+\:/", $soapEnvelope, $out, PREG_PATTERN_ORDER);
+        if( isset($out[0]) && is_array($out[0]) && count($out[0]) > 0 ) {
+            for($i = 0; $i < count($out[0]); $i++) {
+                if(strpos($out[0][$i], '/') !== false) {
+                    $soapEnvelope = str_replace($out[0][$i], '</', $soapEnvelope);
+                } else {
+                    $soapEnvelope = str_replace($out[0][$i], '<', $soapEnvelope);
+                }
+            }
+        }
+        
+        // get envelope request root tags
+        preg_match_all("/\<\S+RequestData\>/", $soapEnvelope, $rootTags, PREG_PATTERN_ORDER);
+        if( !isset($rootTags[0]) || !is_array($rootTags[0]) || count($rootTags[0]) != 2 ) {
+            throw new \Exception("Root tag <...RequestData> does not exist", self::ERROR_500);
+        }
+        $startRootTagPosition = strpos($soapEnvelope, $rootTags[0][0]);
+        $finalRootTagPosition = strpos($soapEnvelope, $rootTags[0][1]);
+        
+        $request = substr($soapEnvelope, $startRootTagPosition, $finalRootTagPosition - $startRootTagPosition + strlen($rootTags[0][1]));
         return $request;
     }
 

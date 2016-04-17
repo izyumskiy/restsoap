@@ -73,11 +73,11 @@ class Transformer {
     public function validateXmlByXsd( $xml, $xsd ) {
         $isValid = false;
         $err = [];
-
+        
+        libxml_use_internal_errors(true);
+        
         $validator = new \DOMDocument( '1.0', 'UTF-8' );
         $validator->loadXML( $xml );
-
-        libxml_use_internal_errors(true);
 
         if (!$validator->schemaValidateSource($xsd)) {
             $errors = libxml_get_errors();
