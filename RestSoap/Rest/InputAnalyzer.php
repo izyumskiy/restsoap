@@ -1,7 +1,6 @@
 <?php
 namespace RestSoap\Rest;
 
-use RestSoap;
 use RestSoap\Template;
 use RestSoap\Xslt;
 
@@ -86,8 +85,9 @@ class InputAnalyzer extends UrlAnalyzer {
 
         $xsd = $xmlObj->asXML();
         $result = $xslt->validateXmlByXsd($xmlData, $xsd);
-        if( $result['validation'] === false )
+        if( $result['validation'] === false ) {
             throw new \Exception($result['errors'][0], self::ERROR_500);
+        }
         return true;
     }
 
