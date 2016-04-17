@@ -98,15 +98,41 @@ class InputAnalyzer extends UrlAnalyzer {
      * @param array $out
      * @return array
      */
-    public function xmlToArray( \SimpleXMLElement $xmlObject, $out = [] )
+    protected function xmlToArray( \SimpleXMLElement $xmlObject, $out = [] )
     {
         foreach ( (array)$xmlObject as $index => $node ) {
-            if( $index == 'item' )
-                $out[] = ( is_object($node) ) ? $this->xmlToArray($node) : $node;
-            else
+            if( $index == 'item' ) {
+                $out[] = ( is_object($node) ) ? $this->xmlToArray($node, $out) : $node;
+            } else {
                 $out[$index] = ( is_object($node) ) ? $this->xmlToArray($node) : $node;
+            }
         }
 
+        return $out;
+    }
+    
+    /**
+     * convert XML to php array
+     *
+     * @param \DOMDocument $xmlObject
+     * @param array $out
+     * @return array
+     */
+    protected function domDocumentToArray($xmlObject, $out = [] )
+    {
+        foreach ($xmlObject->childNodes as $node) {
+            if( $node->nodeName == 'item' ) {
+                $out[] = $node->hasChildNodes() ? $this->domDocumentToArray($node) : (string)$node->nodeValue;
+            } else {
+                if( $node->nodeType != XML_ELEMENT_NODE ) {
+                    continue;
+                }
+                $out[$node->nodeName] = $node->hasChildNodes() ? $this->domDocumentToArray($node) : (string)$node->nodeValue;
+            }
+        }
+        if( count($out) == 0 ) {
+            return $xmlObject->nodeValue;
+        }
         return $out;
     }
 
@@ -114,8 +140,9 @@ class InputAnalyzer extends UrlAnalyzer {
         try {
             $data = $this->getData();
             $encodedData['request'] = json_decode($data, true);
-            if( is_null($encodedData['request']) || empty($encodedData['request']) )
+            if( is_null($encodedData['request']) || empty($encodedData['request']) ) {
                 throw new \InvalidArgumentException("Input data has wrong format. Use JSON input", self::ERROR_400);
+            }
             foreach ($getParams as $key => $val) {
                 if(!array_key_exists($key, $encodedData['request'])) {
                     $encodedData['request'][$key] = $val;
@@ -137,22 +164,25 @@ class InputAnalyzer extends UrlAnalyzer {
         try {
             $result = [];
             $data = $this->getData();
-            $xmlData = simplexml_load_string( $data );
-            $resultFinal['request'] = $this->xmlToArray($xmlData, $result);
+            $xmlData = new \DOMDocument( '1.0', 'UTF-8' );
+            $xmlData->loadXML($data);
+            $resultArray = $this->domDocumentToArray($xmlData, $result);
+            $resultFinal['request'] = $resultArray[$xmlRequestRootTitle];
+            // $xmlData = simplexml_load_string( $data );
+            // $resultFinal['request'] = $this->xmlToArray($xmlData, $result);
+            
+            $get = [];
             foreach ($getParams as $key => $val) {
                 if(!array_key_exists($key, $resultFinal['request']) && !is_null($getParams[$key])) {
-                    $resultFinal['request'][$key] = $val;
+                    $get['request'][$key] = $val;
+                } else {
+                    $get['request'][$key] = $resultFinal['request'][$key];
                 }
             }
-
             // JSON is converted to XML for validation by XSD-scheme that's contained in WSDL
             $xml = new \SimpleXMLElement("<?xml version=\"1.0\"?><" . $xmlRequestRootTitle . "></" . $xmlRequestRootTitle . ">");
-            $this->arrayToXml($resultFinal['request'], $xml);
-            $this->isValidXmlRequest($xml->saveXML());
-            
-            //$this->isValidXmlRequest($data);
-
-            
+            $this->arrayToXml($get['request'], $xml);
+            $this->isValidXmlRequest($xml->saveXML());            
 
             return $resultFinal;
         } catch(\Exception $ex) {
