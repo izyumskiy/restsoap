@@ -1,0 +1,256 @@
+<definitions xmlns:tns="soap/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:ns="soap/example/types" xmlns:xsl="http://www.w3.org/2001/XMLSchema" name="Example"
+             targetNamespace="soap/example"
+             xmlns:xs="http://www.w3.org/1999/XSL/Transform">
+
+    <types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="soap/example/types">
+
+            <xs:group name="ParentGroup">
+                <xs:sequence>
+                    <xs:element name="status">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:NMTOKEN">
+                                <xs:enumeration value="200"/>
+                                <xs:enumeration value="400"/>
+                                <xs:enumeration value="403"/>
+                                <xs:enumeration value="500"/>
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:element>
+                    <xs:element name="error" type="xs:string" />
+                </xs:sequence>
+            </xs:group>
+            
+            <xs:element name="getBooksRequestData">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="book_id" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="getBooksResponseData">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:group ref="ns:ParentGroup"/>
+                        <xs:element name="data" type="ns:getBooksResponseItem"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+            <xs:complexType name="getBooksResponseItem">
+                <xs:sequence>
+                    <xs:element name="item" minOccurs="0" maxOccurs="unbounded" type="ns:bookItem"/>
+                </xs:sequence>
+            </xs:complexType>
+            
+            <xs:complexType name="bookItem">
+                <xs:all>
+                    <xs:element name="book_id" type="xs:int" />
+                    <xs:element name="title" type="xs:string" />
+                    <xs:element name="author" type="xs:string" />
+                    <xs:element name="price" type="xs:int" />
+                </xs:all>
+            </xs:complexType>
+            
+            <xs:complexType name="book">
+                <xs:all>
+                    <xs:element name="title" type="xs:string" />
+                    <xs:element name="author" type="xs:string" />
+                    <xs:element name="price" type="xs:int" />
+                </xs:all>
+            </xs:complexType>
+            
+            <xs:element name="postBooksRequestData">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="item" minOccurs="1" maxOccurs="unbounded" type="ns:book"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="postBooksResponseData">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:group ref="ns:ParentGroup"/>
+                        <xs:element name="data" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+            <xs:element name="updateBooksRequestData">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="book_id" type="xs:int" />
+                        <xs:element name="title" type="xs:string" />
+                        <xs:element name="author" type="xs:string" />
+                        <xs:element name="price" type="xs:int" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="updateBooksResponseData">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:group ref="ns:ParentGroup"/>
+                        <xs:element name="data" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+
+        </xs:schema>
+    </types>
+   
+    
+    <message name="getBooksRequest">
+        <part name="params" element="ns:getBooksRequestData"></part>
+    </message>
+    <message name="getBooksResponse">
+        <part name="Result" element="ns:getBooksResponseData"></part>
+    </message>
+    
+    <message name="postBooksRequest">
+        <part name="params" element="ns:postBooksRequestData"></part>
+    </message>
+    <message name="postBooksResponse">
+        <part name="Result" element="ns:postBooksResponseData"></part>
+    </message>
+    
+    <message name="updateBooksRequest">
+        <part name="params" element="ns:updateBooksRequestData"></part>
+    </message>
+    <message name="updateBooksResponse">
+        <part name="Result" element="ns:updateBooksResponseData"></part>
+    </message>
+    
+    <message name="postFileRequest">
+        <part name="params" element="ns:postFileRequestData"></part>
+    </message>
+    <message name="postFileResponse">
+        <part name="Result" element="ns:postFileResponseData"></part>
+    </message>
+    
+    <message name="getFileRequest">
+        <part name="params" element="ns:getFileRequestData"></part>
+    </message>
+    <message name="getFileResponse">
+        <part name="Result" element="ns:getFileResponseData"></part>
+    </message>
+
+
+    <portType name="ExamplePortType">
+       
+        <operation name="getBooks">
+            <input message="tns:getBooksRequest" />
+            <output message="tns:getBooksResponse" />
+        </operation>
+        
+        <operation name="postBooks">
+            <input message="tns:postBooksRequest" />
+            <output message="tns:postBooksResponse" />
+        </operation>
+        
+        <operation name="updateBooks">
+            <input message="tns:updateBooksRequest" />
+            <output message="tns:updateBooksResponse" />
+        </operation>
+        
+        <operation name="getFile">
+            <input message="tns:getFileRequest" />
+            <output message="tns:getFileResponse" />
+        </operation>
+        
+        <operation name="postFile">
+            <input message="tns:postFileRequest" />
+            <output message="tns:postFileResponse" />
+        </operation>
+    </portType>
+
+
+    <binding name="ExampleBinding" type="tns:ExamplePortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        
+        <operation name="getBooks">
+            <documentation type="map">
+                <text>Returns book's library</text>
+                <rest call="books" httpMethod="GET"/>
+            </documentation>
+            <soap:operation soapAction="soap/example/getBooks" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        
+        <operation name="postBooks">
+            <documentation type="map">
+                <text>Post new books to library</text>
+                <rest call="books" httpMethod="POST"/>
+            </documentation>
+            <soap:operation soapAction="soap/example/postBooks" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        
+        <operation name="updateBooks">
+            <documentation type="map">
+                <text>Update book in library</text>
+                <rest call="books" httpMethod="PUT"/>
+            </documentation>
+            <soap:operation soapAction="soap/example/updateBooks" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        
+        <operation name="getFile">
+            <documentation type="map">
+                <text>get book's file</text>
+                <rest call="file" httpMethod="GET"/>
+            </documentation>
+            <soap:operation soapAction="soap/example/getFile" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        
+        <operation name="postFile">
+            <documentation type="map">
+                <text>Post new book file</text>
+                <rest call="file" httpMethod="POST"/>
+            </documentation>
+            <soap:operation soapAction="soap/example/postFile" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+
+    </binding>
+
+    <service name="ExampleService">
+        <port name="ExamplePort" binding="tns:ExampleBinding">
+            <soap:address location="http://<?php echo $_SERVER['HTTP_HOST'];?>/api/soap/?module=example"/>
+        </port>
+    </service>
+
+</definitions>
