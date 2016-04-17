@@ -115,7 +115,7 @@ class InputAnalyzer extends UrlAnalyzer {
             $data = $this->getData();
             $encodedData['request'] = json_decode($data, true);
             if( is_null($encodedData['request']) || empty($encodedData['request']) )
-                throw new \InvalidArgumentException("Input data has wrong format", self::ERROR_400);
+                throw new \InvalidArgumentException("Input data has wrong format. Use JSON input", self::ERROR_400);
             foreach ($getParams as $key => $val) {
                 if(!array_key_exists($key, $encodedData['request'])) {
                     $encodedData['request'][$key] = $val;

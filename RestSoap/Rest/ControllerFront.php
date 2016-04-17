@@ -165,6 +165,7 @@ class ControllerFront extends RestSoap\ApiBase {
                 $result = $inputAnalyzer->getJsonHttpBody($xmlRequestRootTitle, $getParams);
                 break;
             case RestSoap\ApiBase::RESP_XML:
+            case RestSoap\ApiBase::RESP_XML_TEST:
                 $result = $inputAnalyzer->getXmlHttpBody($xmlRequestRootTitle, $getParams);
                 /**
                  *  process xml like
