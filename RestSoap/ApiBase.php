@@ -20,13 +20,25 @@ class ApiBase {
     const RESP_XML_TEST = 'xml_test'; // used for output XML without validation
     const RESP_RAW = 'raw';
 
-	/**
+    /*
+     * @param array $data
+     */
+    public function arrayToObject(array $data) {
+        $object = new \stdClass();
+        foreach ($data as $key => $value)
+        {
+            $object->$key = $value;
+        }
+        return $object;
+    }
+    /**
      * Преобразовать PHP-массив в XML
      *
      * Метод также используется в PHPUnit тестах сервисов
      *
      * @param array $data
      * @param \SimpleXMLElement $xmlBlank
+     * @param string $itemName
      */
     public function arrayToXml($data, \SimpleXMLElement &$xmlBlank, $itemName = 'item') {
         foreach($data as $key => $value) {

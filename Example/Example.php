@@ -18,17 +18,19 @@ class Example
         return $this->getResponse(true);
     }
     
-    public function getBooks($params) {     
+    public function getBooks($params) {   
+
         $books = [351 => ['book_id' => 351, 'title' => 'The Great Gatsby', 'author' => 'F. Scott Fitzgerald', 'price' => 15], 
                   387 => ['book_id' => 387, 'title' => 'The Brothers Karamazov', 'author' => 'Fyodor Mikhailovich Dostoyevsky', 'price' => 27],
                   236 => ['book_id' => 236, 'title' => 'One Hundred Years of Solitude', 'author' => 'Gabriel García Márquez', 'price' => 25]];
                 
-        $id = isset($params['book_id']) && (int)$params['book_id'] > 0 ? $params['book_id'] : null;  
-        if(is_null($id)) {
-            return $this->getResponse($books);
-        } else {
+        $id = isset($params->book_id) && (int)$params->book_id > 0 ? $params->book_id : null; 
+        if( isset($books[$id]) ) {
             return $this->getResponse([$id => $books[$id]]);
+        } else if(((int)$id > 0)) {
+            return $this->getResponse([]);
         }
+        return $this->getResponse($books);
     }
     
     public function postFile($params) {

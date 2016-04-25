@@ -209,8 +209,10 @@ class ControllerFront extends RestSoap\ApiBase {
             if( $httpMethod != 'GET' && is_array($httpBodyParameters) ) {
                 $inputParams = array_merge($inputParams, $httpBodyParameters['request']);
             }
+            $inputObjects = $this->arrayToObject($inputParams);
+            
             $class = new $className($this->getWsdlParams());
-            $result = $class->$method($inputParams);
+            $result = $class->$method($inputObjects);
             /**
              * Outstanding features are thrown with exceptions
              * HTTP Status 200 is taken from methods.

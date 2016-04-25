@@ -149,7 +149,7 @@ class InputAnalyzer extends UrlAnalyzer {
                 }
             }
 
-            // JSON is converted to XML for validation by XSD-scheme that's contained in WSDL
+            // JSON is converted to XML for validation by XSD-scheme which's contained in WSDL
             $xml = new \SimpleXMLElement("<?xml version=\"1.0\"?><" . $xmlRequestRootTitle . "></" . $xmlRequestRootTitle . ">");
             $this->arrayToXml($encodedData['request'], $xml);
             $this->isValidXmlRequest($xml->saveXML());
